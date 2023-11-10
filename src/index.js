@@ -1,15 +1,19 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
+import React, {StrictMode} from 'react';
+import {createRoot} from 'react-dom/client';
 import {Provider} from 'mobx-react';
-
-import "./index.css";
-
-import App from './App';
 import {store} from './store';
+import App from "./App";
+import reportWebVitals from "./reportWebVitals";
 
-ReactDOM.render(
-    <Provider store={store}>
-        <App/>
-    </Provider>,
-    document.getElementById('root')
+const rootElement = document.getElementById('root');
+const root = createRoot(rootElement);
+
+root.render(
+    <StrictMode>
+        <Provider store={store}>
+            <App/>
+        </Provider>
+    </StrictMode>,
 );
+
+reportWebVitals();

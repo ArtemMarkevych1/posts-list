@@ -1,8 +1,9 @@
 import {makeAutoObservable, runInAction} from "mobx";
 
 export class Store {
-    todos = []
+    posts = []
     loading = false
+    success = false
     abortController
 
     constructor() {
@@ -13,7 +14,7 @@ export class Store {
         if (this.abortController) this.abortController.abort()
     }
 
-    fetchRequest() {
+    fetchPosts() {
 
         runInAction(() => {
             this.abortController = new AbortController();
@@ -23,11 +24,44 @@ export class Store {
             const signal = this.abortController.signal
             this.loading = true
 
-            fetch('https://jsonplaceholder.typicode.com/todos?_limit=5', {signal})
+            fetch('https://jsonplaceholder.typicode.com/posts', {signal})
                 .then(response => response.json())
                 .then(result => {
                     runInAction(() => {
-                        this.todos = result
+                        this.posts = result
+                        this.loading = false
+                    })
+                })
+                .catch(error => {
+                    if (!this.abortController.signal.aborted) {
+                        console.log(error)
+                    }
+                })
+        }
+    }
+
+    createPost = async (title, body) => {
+
+        runInAction(() => {
+            this.abortController = new AbortController();
+        })
+
+        if (this.abortController) {
+            this.loading = true
+            await fetch('https://jsonplaceholder.typicode.com/posts', {
+                method: 'POST',
+                body: JSON.stringify({
+                    title: title,
+                    body: body,
+                    userId: 1,
+                }),
+                headers: {
+                    'Content-type': 'application/json; charset=UTF-8',
+                }
+            })
+                .then(() => {
+                    runInAction(() => {
+                        this.success = true
                         this.loading = false
                     })
                 })
